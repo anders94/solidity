@@ -49,6 +49,13 @@ Declaration const* DeclarationContainer::conflictingDeclaration(
 			if (!dynamic_cast<FunctionDefinition const*>(declaration))
 				return declaration;
 	}
+	else if (dynamic_cast<EventDefinition const*>(&_declaration))
+	{
+		// check that all other declarations with the same name are events
+		for (Declaration const* declaration: declarations)
+			if (!dynamic_cast<EventDefinition const*>(declaration))
+				return declaration;
+	}
 	else if (declarations.size() == 1 && declarations.front() == &_declaration)
 		return nullptr;
 	else if (!declarations.empty())
