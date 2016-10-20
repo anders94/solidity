@@ -42,19 +42,19 @@ Declaration const* DeclarationContainer::conflictingDeclaration(
 	if (m_invisibleDeclarations.count(*_name))
 		declarations += m_invisibleDeclarations.at(*_name);
 
-	if (dynamic_cast<FunctionDefinition const*>(&_declaration))
+	if (dynamic_cast<FunctionDefinition const*>(&_declaration) ||
+		dynamic_cast<EventDefinition const*>(&_declaration)
+		)
 	{
-		// check that all other declarations with the same name are functions
+		// Check that all other declarations with the same name are functions or events
+		// And then check that the signatures are different.
 		for (Declaration const* declaration: declarations)
-			if (!dynamic_cast<FunctionDefinition const*>(declaration))
+		{
+			if (!dynamic_cast<FunctionDefinition const*>(declaration) &&
+				!dynamic_cast<EventDefinition const*>(declaration)
+				)
 				return declaration;
-	}
-	else if (dynamic_cast<EventDefinition const*>(&_declaration))
-	{
-		// check that all other declarations with the same name are events
-		for (Declaration const* declaration: declarations)
-			if (!dynamic_cast<EventDefinition const*>(declaration))
-				return declaration;
+		}
 	}
 	else if (declarations.size() == 1 && declarations.front() == &_declaration)
 		return nullptr;

@@ -260,10 +260,17 @@ vector<Declaration const*> NameAndTypeResolver::cleanedDeclarations(
 	for (auto it = _declarations.begin(); it != _declarations.end(); ++it)
 	{
 		solAssert(*it, "");
-		// the declaration is functionDefinition while declarations > 1
-		FunctionDefinition const& functionDefinition = dynamic_cast<FunctionDefinition const&>(**it);
-		FunctionType functionType(functionDefinition);
-		for (auto parameter: functionType.parameterTypes() + functionType.returnParameterTypes())
+		FunctionType const* functionType {};
+
+		if (FunctionDefinition const* functionDefinition = dynamic_cast<FunctionDefinition const*>(*it))
+			functionType = new FunctionType(*functionDefinition);
+		else if (EventDefinition const* eventDefinition = dynamic_cast<EventDefinition const*>(*it))
+			functionType = new FunctionType(*eventDefinition);
+
+		if (!functionType)
+			continue;
+
+		for (auto parameter: functionType->parameterTypes() + functionType->returnParameterTypes())
 			if (!parameter)
 				reportFatalDeclarationError(_identifier.location(), "Function type can not be used in this context");
 
@@ -272,8 +279,21 @@ vector<Declaration const*> NameAndTypeResolver::cleanedDeclarations(
 			uniqueFunctions.end(),
 			[&](Declaration const* d)
 			{
-				FunctionType newFunctionType(dynamic_cast<FunctionDefinition const&>(*d));
-				return functionType.hasEqualArgumentTypes(newFunctionType);
+				if (FunctionDefinition const* newFunctionDefinition = dynamic_cast<FunctionDefinition const*>(d))
+				{
+					FunctionType newFunctionType(*newFunctionDefinition);
+					return functionType->hasEqualArgumentTypes(newFunctionType);
+				}
+				else if (EventDefinition const* newEventDefinition = dynamic_cast<EventDefinition const*>(d))
+				{
+					FunctionType newFunctionType(*newEventDefinition);
+					return functionType->hasEqualArgumentTypes(newFunctionType);
+				}
+				else
+				{
+					solAssert(false, "not a function or an event.");
+					return false; // to make compiler happy
+				}
 			}
 		))
 			uniqueFunctions.push_back(*it);
