@@ -752,6 +752,7 @@ public:
 	bool isAnonymous() const { return m_anonymous; }
 
 	virtual TypePointer type() const override;
+	virtual std::shared_ptr<FunctionType const> functionType(bool /*_external*/) const override;
 
 	virtual EventDefinitionAnnotation& annotation() const override;
 

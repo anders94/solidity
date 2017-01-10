@@ -347,6 +347,14 @@ TypePointer EventDefinition::type() const
 	return make_shared<FunctionType>(*this);
 }
 
+std::shared_ptr<FunctionType const> EventDefinition::functionType(bool _external) const
+{
+	if (_external)
+		return {};
+	else
+		return make_shared<FunctionType>(*this);
+}
+
 EventDefinitionAnnotation& EventDefinition::annotation() const
 {
 	if (!m_annotation)
