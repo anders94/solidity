@@ -1,6 +1,9 @@
 ### 0.4.8 (unreleased)
 
-BugFixes:
+Features:
+ * Optimiser: Performance improments.
+
+Bugfixes:
  * Type checker, code generator: enable access to events of base contracts' names.
  * Imports: ``import ".dir/a"`` is not a relative path.  Relative paths begin with directory ``.`` or ``..``.
 
